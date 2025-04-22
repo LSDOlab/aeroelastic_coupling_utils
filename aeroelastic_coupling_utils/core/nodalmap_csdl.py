@@ -6,11 +6,12 @@ from aeroelastic_coupling_utils.utils.distancecalculation_csdl import distance_c
 from aeroelastic_coupling_utils.utils.weightnormalization_csdl import weight_normalization
 
 class NodalMap:
-    def __init__(self, weight_eps: float=1., weight_func_name: str='Gaussian', weight_to_be_normalized: bool=True):
+    def __init__(self, weight_eps: float=1., weight_func_name: str='Gaussian', weight_to_be_normalized: bool=True, normalization_eps:float=0):
         # define constant model parameters
         self.weight_eps = weight_eps
         self.weight_func = weight_func_name
         self.weight_to_be_normalized = weight_to_be_normalized
+        self.normalization_eps = normalization_eps
 
     def evaluate(self, input_mesh: csdl.Variable, output_mesh: csdl.Variable, column_scaling_vec: csdl.Variable=None):
         # calculate distances between input and output mesh nodes
@@ -22,7 +23,8 @@ class NodalMap:
 
         # normalize the inverse-distance weight array with the column scaling vector
         if self.weight_to_be_normalized:
-            output_ID_weight_array = weight_normalization(ID_weight_array, column_scaling_vec=column_scaling_vec)
+            output_ID_weight_array = weight_normalization(ID_weight_array, column_scaling_vec=column_scaling_vec, 
+                                                          normalization_eps=self.normalization_eps)
         else:
             output_ID_weight_array = ID_weight_array
         return output_ID_weight_array
